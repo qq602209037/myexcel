@@ -50,7 +50,7 @@ public class IndexController {
         new ExcelUtil<Employee>().loadExcel(3,2,file[0].getInputStream(),file[0].getOriginalFilename(),Employee.class,map);
         new ExcelUtil<Manager>().loadExcel(5,3,file[1].getInputStream(),file[1].getOriginalFilename(),Manager.class,map);
 
-
+        ExcelUtil.createExcel(map);
 
         System.out.println(map);
         System.exit(1);

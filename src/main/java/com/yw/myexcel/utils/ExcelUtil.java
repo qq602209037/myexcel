@@ -9,11 +9,15 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,6 +139,71 @@ public class ExcelUtil<T>  {
 
         }
     }
+
+
+    public static String createExcel(Map<String,MergeEntity> map) throws IOException, IllegalAccessException {
+
+        for(Map.Entry<String,MergeEntity> entry: map.entrySet()){
+            //创建HSSFWorkbook对象(excel的文档对象)
+            HSSFWorkbook wb = new HSSFWorkbook();
+            //建立新的sheet对象（excel的表单）
+            HSSFSheet sheet=wb.createSheet("整表");
+//在sheet里创建第一行，参数为行索引(excel的行)，可以是0～65535之间的任何一个
+            int rowNum = 0;
+            List<Manager> managers = entry.getValue().getManagers();
+            HSSFRow row1 = null;
+//创建单元格（excel的单元格，参数为列索引，可以是0～255之间的任何一个
+            HSSFCell cell = null;
+            //设置单元格内容
+            if(managers.size()>0) {
+                row1 = sheet.createRow(rowNum);
+                cell = row1.createCell(rowNum);
+                cell.setCellValue("经理表");
+
+                for (int i = 0; i < managers.size(); ++i) {
+                    Manager temp = managers.get(i);
+//合并单元格CellRangeAddress构造参数依次表示起始行，截至行，起始列， 截至列
+                    // sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));
+//在sheet里创建第二行
+                    int k = 0;
+                    HSSFRow row = sheet.createRow(rowNum + 1);
+                    for (Field field : temp.getClass().getDeclaredFields()) {
+                        field.setAccessible(true);
+                        row.createCell(k++).setCellValue((String) field.get(temp));
+
+                    }
+                    rowNum++;
+                }
+            }
+            List<Employee> employees = entry.getValue().getEmployees();
+            if(employees.size()>0) {
+                row1 = sheet.createRow(++rowNum);
+//创建单元格（excel的单元格，参数为列索引，可以是0～255之间的任何一个
+                cell = row1.createCell(0);
+                //设置单元格内容
+                cell.setCellValue("文员表");
+
+                for (int i = 0; i < employees.size(); ++i) {
+                    Employee temp = employees.get(i);
+//合并单元格CellRangeAddress构造参数依次表示起始行，截至行，起始列， 截至列
+                    // sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));
+//在sheet里创建第二行
+                    int k = 0;
+                    HSSFRow row = sheet.createRow(rowNum + 1);
+                    for (Field field : temp.getClass().getDeclaredFields()) {
+                        field.setAccessible(true);
+                        row.createCell(k++).setCellValue((String) field.get(temp));
+
+                    }
+                    rowNum++;
+                }
+            }
+            OutputStream output = new FileOutputStream("D://"+entry.getKey()+".xls");
+            wb.write(output);
+            output.close();
+            }
+            return null;
+        }
 
 
 }
