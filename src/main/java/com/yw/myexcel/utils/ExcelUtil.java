@@ -1,19 +1,25 @@
 package com.yw.myexcel.utils;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.yw.myexcel.entity.Employee;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.yw.myexcel.entity.Manager;
+import com.yw.myexcel.entity.MergeEntity;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ExcelUtil<T> {
+public class ExcelUtil<T>  {
     private static final String EXCEL_XLS = "xls";
     private static final String EXCEL_XLSX = "xlsx";
 
@@ -61,18 +67,19 @@ public class ExcelUtil<T> {
         return wb;
     }
 
-    public  List<Object> loadExcel(InputStream in,String filename,Class<T> clazz) throws IOException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+    public  void loadExcel(int startRow, int endRow, InputStream in, String filename, Class<T> clazz,Map<String, MergeEntity> map) throws IOException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         {
             Workbook workbook = ExcelUtil.getWorkbook(in,filename);
             Sheet sheet = workbook.getSheetAt(0);
             int rowNum = sheet.getPhysicalNumberOfRows();
-            List<Object> employees = new ArrayList<>();
+
+            List employees = new ArrayList();
             int count = 0;
             int staticRow=0;
 
-            for(int i = 0;i<rowNum-2;++i){
+            for(int i = 0;i<rowNum-endRow;++i){
                 Row row = sheet.getRow(i);
-                if(i<3){
+                if(i<startRow){
                     continue;
                 }
                 //如果第一行第一列没有数据
@@ -88,8 +95,12 @@ public class ExcelUtil<T> {
                 int end = row.getLastCellNum();
 
                 String tempRow = "";
+                String bsc = "";
                 for(int j = 0;j<end ;++j){
                     Cell cell =row.getCell(j);
+                    if(j == 0){
+                        bsc = ExcelUtil.getValue(cell)+"";
+                    }
                     if(cell == null){
 
                         continue;
@@ -97,15 +108,33 @@ public class ExcelUtil<T> {
 
                     tempRow += ExcelUtil.getValue(cell)+";";
                 }
+                if(map.containsKey(bsc)){
+                    if(clazz.getName().equals("com.yw.myexcel.entity.Employee")){
+                        map.get(bsc).getEmployees().add((Employee) SetObjValues.setValue(clazz.newInstance(),tempRow));
+                    }else if(clazz.getName().equals("com.yw.myexcel.entity.Manager")){
+                        map.get(bsc).getManagers().add((Manager) SetObjValues.setValue(clazz.newInstance(),tempRow));
 
-                employees.add(SetObjValues.setValue(clazz.newInstance(),tempRow));
+                    }
+                }else{
+                    if(clazz.getName().equals("com.yw.myexcel.entity.Employee")){
+                        MergeEntity mergeEntity = new MergeEntity();
+                        mergeEntity.setBsc(bsc);
+                        mergeEntity.getEmployees().add((Employee) SetObjValues.setValue(clazz.newInstance(),tempRow));
+                        map.put(bsc,mergeEntity);
+                    }else if(clazz.getName().equals("com.yw.myexcel.entity.Manager")){
+                        MergeEntity mergeEntity = new MergeEntity();
+                        mergeEntity.setBsc(bsc);
+                        mergeEntity.getManagers().add((Manager) SetObjValues.setValue(clazz.newInstance(),tempRow));
+                        map.put(bsc,mergeEntity);
+                    }
+                }
+
 
 
             }
 
-
-            return employees;
         }
     }
+
 
 }

@@ -4,9 +4,12 @@ package com.yw.myexcel.controller;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.yw.myexcel.entity.Employee;
+import com.yw.myexcel.entity.Manager;
+import com.yw.myexcel.entity.MergeEntity;
 import com.yw.myexcel.utils.ExcelUtil;
 import com.yw.myexcel.utils.SetObjValues;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -20,7 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author a1387537
@@ -40,8 +45,14 @@ public class IndexController {
 
     @RequestMapping(value = "uploadFile")
     public String execUpload(MultipartFile []file) throws Exception {
-        List<Object> list = new ExcelUtil<Employee>().loadExcel(file[0].getInputStream(),file[0].getOriginalFilename(),Employee.class);
-        System.out.println(list);
+        Map<String, MergeEntity> map = new HashMap<>();
+
+        new ExcelUtil<Employee>().loadExcel(3,2,file[0].getInputStream(),file[0].getOriginalFilename(),Employee.class,map);
+        new ExcelUtil<Manager>().loadExcel(5,3,file[1].getInputStream(),file[1].getOriginalFilename(),Manager.class,map);
+
+
+
+        System.out.println(map);
         System.exit(1);
         return "";
         }
