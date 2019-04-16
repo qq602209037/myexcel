@@ -22,6 +22,19 @@ public class EmployeeHk {
     @Excel(name = "结转下月超额（元）")
     String jzxyce;
 
+    @Override
+    public String toString() {
+        return "EmployeeHk{" +
+                "swhkrw='" + swhkrw + '\'' +
+                ", swhkwc='" + swhkwc + '\'' +
+                ", hkdf='" + hkdf + '\'' +
+                ", byce='" + byce + '\'' +
+                ", sycezby='" + sycezby + '\'' +
+                ", cef='" + cef + '\'' +
+                ", fshj='" + fshj + '\'' +
+                ", jzxyce='" + jzxyce + '\'' +
+                '}';
+    }
 
     public String getSwhkrw() {
         return swhkrw;

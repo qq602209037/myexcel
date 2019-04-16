@@ -3,10 +3,11 @@ package com.yw.myexcel.entity;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 
-@ExcelTarget("employeFh")
+
 public class EmployeeFh {
     @Excel(name = "商务发货任务（元）")
     String swfhrw;
+
     @Excel(name="商务发货完成（元）")
     String swfhwc;
     @Excel(name = "发货得分")
@@ -21,6 +22,21 @@ public class EmployeeFh {
     String fshj;
     @Excel(name = "结转下月超额（元）")
     String jzxyce;
+
+
+    @Override
+    public String toString() {
+        return "EmployeeFh{" +
+                "swfhrw='" + swfhrw + '\'' +
+                ", swfhwc='" + swfhwc + '\'' +
+                ", fhdf='" + fhdf + '\'' +
+                ", byce='" + byce + '\'' +
+                ", sycezby='" + sycezby + '\'' +
+                ", cef='" + cef + '\'' +
+                ", fshj='" + fshj + '\'' +
+                ", jzxyce='" + jzxyce + '\'' +
+                '}';
+    }
 
     public String getSwfhrw() {
         return swfhrw;

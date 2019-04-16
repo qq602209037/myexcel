@@ -4,13 +4,22 @@ package com.yw.myexcel.controller;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.yw.myexcel.entity.Employee;
+import com.yw.myexcel.utils.ExcelUtil;
+import com.yw.myexcel.utils.SetObjValues;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,22 +39,49 @@ public class IndexController {
     }
 
     @RequestMapping(value = "uploadFile")
-    public String execUpload(MultipartFile file) throws Exception {
-        ImportParams importParams = new ImportParams();
+    public String execUpload(MultipartFile []file) throws Exception {
+        Workbook workbook = ExcelUtil.getWorkbook(file[0].getInputStream(),file[0].getOriginalFilename());
+        Sheet sheet = workbook.getSheetAt(0);
+        int rowNum = sheet.getPhysicalNumberOfRows();
+        System.out.println(rowNum);
+        List<Object> employees = new ArrayList<>();
+        int count = 0;
+        for( Row row:sheet){
+            if(count<3){
+                count ++;
+                continue;
+            }
 
-        importParams.setHeadRows(1);
-        importParams.setTitleRows(1);
-        importParams.setLastOfInvalidRow(2);
-        ;
-        List<Employee> result = ExcelImportUtil.importExcel(file.getInputStream(),Employee.class,importParams);
+            //如果第一行第一列没有数据
+            if(row.getCell(0).toString().equals("")){
+                break;
+            }
 
+            int columnTotalNum = row.getPhysicalNumberOfCells();
+            System.out.println("总列数为: "+columnTotalNum);
+            System.out.println("最大列数为: "+row.getLastCellNum());
 
+            int end = row.getLastCellNum();
 
-        for(int i = 0;i<result.size();++i){
-            System.out.println(ReflectionToStringBuilder.toString(result.get(i)));
+            String tempRow = "";
+            for(int i = 0;i<end ;++i){
+                Cell cell =row.getCell(i);
+                if(cell == null){
+                    System.out.println("null"+"\t");
+                    continue;
+                }
+                System.out.print(ExcelUtil.getValue(cell)+"\t");
+                tempRow += ExcelUtil.getValue(cell)+";";
+            }
+            System.out.println(tempRow);
+            employees.add(SetObjValues.setValue(new Employee(),tempRow));
+            System.out.println();
+
         }
+        System.out.println(employees.toString());
 
-        System.exit(1);
         return "";
     }
+
+
 }
