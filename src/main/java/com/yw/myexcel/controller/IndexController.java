@@ -40,19 +40,20 @@ public class IndexController {
 
     @RequestMapping(value = "uploadFile")
     public String execUpload(MultipartFile []file) throws Exception {
-        Workbook workbook = ExcelUtil.getWorkbook(file[0].getInputStream(),file[0].getOriginalFilename());
-        Sheet sheet = workbook.getSheetAt(0);
-        int rowNum = sheet.getPhysicalNumberOfRows();
-        System.out.println(rowNum);
-        List<Object> employees = new ArrayList<>();
-        int count = 0;
+        List<Object> list = new ExcelUtil<Employee>().loadExcel(file[0].getInputStream(),file[0].getOriginalFilename(),Employee.class);
+        System.out.println(list);
+        System.exit(1);
+        return "";
+        }
+/*
         for( Row row:sheet){
             if(count<3){
+                staticRow = row.getPhysicalNumberOfCells();
                 count ++;
                 continue;
-            }
+            }*/
 
-            //如果第一行第一列没有数据
+/*            //如果第一行第一列没有数据
             if(row.getCell(0).toString().equals("")){
                 break;
             }
@@ -60,6 +61,10 @@ public class IndexController {
             int columnTotalNum = row.getPhysicalNumberOfCells();
             System.out.println("总列数为: "+columnTotalNum);
             System.out.println("最大列数为: "+row.getLastCellNum());
+
+            if(staticRow != columnTotalNum){
+                break;
+            }
 
             int end = row.getLastCellNum();
 
@@ -80,8 +85,11 @@ public class IndexController {
         }
         System.out.println(employees.toString());
 
-        return "";
-    }
+        return "";*/
+
 
 
 }
+
+
+/**/

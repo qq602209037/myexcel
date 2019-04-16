@@ -10,6 +10,7 @@ public class SetObjValues {
         Field[] fields = model.getClass().getDeclaredFields();
         String[] val = value.split(";");
 
+
         for(int i = 0;i<fields.length;++i){
             //获取属性的名字
             String name = fields[i].getName();
@@ -24,7 +25,7 @@ public class SetObjValues {
             if(type.equals("class java.lang.String")){
                 Method m = model.getClass().getMethod("set"+name,String.class);
                 try {
-                    System.out.println(val.length);
+
                     m.invoke(model,val[i]);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
